@@ -81,7 +81,7 @@ public class Chatbot {
             // Após tratar a entrada do termo faltante, verifica se a atribuição está completa
             if (context.containsKey("instrumento") || context.containsKey("gênero") || context.containsKey("método")) {
                 String completeQuery = previousInput + " " + input;
-                System.out.println("Resposta para a consulta '" + completeQuery + "':");
+                System.out.println("Resposta para a consulta" + ":");
                 try {
                     String bestResponse = responseIndexer.getBestResponse(completeQuery);
                     System.out.println(bestResponse);
@@ -137,16 +137,16 @@ public class Chatbot {
                 System.out.println("Opa, entendi sua requisição sobre " + termToUse);
                 System.out.println("Tabela de símbolos: " + symbolTable);
 
-                // Utiliza o método atualizado que agora aceita uma única string de entrada
+                // Atualiza o índice com o novo termo de atribuição
                 try {
-                    String bestResponse = responseIndexer.getBestResponse(input);
-                    System.out.println("Resposta para a consulta '" + input + "': " + bestResponse);
+                    responseIndexer.updateIndexFromAssignment(termToUse);
+                    String bestResponse = responseIndexer.getBestResponse(previousInput + " " + termToUse);
+                    System.out.println("Resposta para a consulta" + ": " + bestResponse);
                 } catch (IOException e) {
                     System.err.println("Erro ao obter a melhor resposta: " + e.getMessage());
                 }
 
                 previousInput = input;
-
                 isPreviousAssignmentComplete = !checkMissingElements(input, recognizedType);
             } else {
                 // Solicita o termo faltante se a atribuição não estiver completa
@@ -170,10 +170,11 @@ public class Chatbot {
                             System.out.println("Opa, entendi sua requisição sobre " + input);
                             System.out.println("Tabela de símbolos: " + symbolTable);
 
-                            // Utiliza o método atualizado que agora aceita uma única string de entrada
+                            // Atualiza o índice com o novo termo de atribuição
                             try {
+                                responseIndexer.updateIndexFromAssignment(input);
                                 String bestResponse = responseIndexer.getBestResponse(previousInput + " " + input);
-                                System.out.println("Resposta para a consulta '" + previousInput + " " + input + "': " + bestResponse);
+                                System.out.println("Resposta para a consulta" + ": " + bestResponse);
                             } catch (IOException e) {
                                 System.err.println("Erro ao obter a melhor resposta: " + e.getMessage());
                             }
@@ -192,6 +193,7 @@ public class Chatbot {
             }
         }
     }
+
 
     private static void handleSingleWordInput(String input) {
         if (instrumentos.contains(input)) {

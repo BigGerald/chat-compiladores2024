@@ -16,20 +16,14 @@ public class ResponseIndexer {
 
     // Load the index from the file
     public void loadIndex() throws IOException {
-        File indexFile = new File(indexFilePath);
-        if (indexFile.length() == 0) {
-            // Índice vazio, então precisamos atualizar o índice
-            createIndexFromDocuments();
-        } else {
-            try (BufferedReader reader = new BufferedReader(new FileReader(indexFilePath))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split(":", 2);
-                    if (parts.length == 2) {
-                        String term = parts[0];
-                        Set<String> docs = new HashSet<>(Arrays.asList(parts[1].split(",")));
-                        invertedIndex.put(term, docs);
-                    }
+        try (BufferedReader reader = new BufferedReader(new FileReader(indexFilePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(":", 2);
+                if (parts.length == 2) {
+                    String term = parts[0];
+                    Set<String> docs = new HashSet<>(Arrays.asList(parts[1].split(",")));
+                    invertedIndex.put(term, docs);
                 }
             }
         }
@@ -65,7 +59,8 @@ public class ResponseIndexer {
     // Extract terms from content
     private Set<String> extractTerms(String content) {
         Set<String> terms = new HashSet<>();
-        String[] words = content.toLowerCase().split("\\P{L}+");
+        // Divida o conteúdo em palavras, mantendo a acentuação
+        String[] words = content.toLowerCase().split("\\P{L}+"); // Utiliza \P{L} para separar por caracteres não-letra
         for (String word : words) {
             if (!word.isEmpty() && !StopWordsUtils.isStopWord(word)) {
                 terms.add(word);
@@ -76,12 +71,7 @@ public class ResponseIndexer {
 
     // Get the best response based on the query
     public String getBestResponse(String query) throws IOException {
-        if (invertedIndex.isEmpty()) {
-            // Se o índice estiver vazio, atualize o índice antes de procurar uma resposta
-            createIndexFromDocuments();
-        }
-
-        String[] words = query.toLowerCase().split("\\P{L}+");
+        String[] words = query.toLowerCase().split("\\P{L}+"); // Utiliza \P{L} para separar por caracteres não-letra
         Map<String, Integer> docScores = new HashMap<>();
         for (String word : words) {
             if (invertedIndex.containsKey(word)) {
@@ -90,13 +80,16 @@ public class ResponseIndexer {
                 }
             }
         }
-
         String bestDoc = docScores.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(null);
 
-        return bestDoc != null ? readDocument(bestDoc) : null;
+        if (bestDoc != null) {
+            return readDocument(bestDoc);
+        } else {
+            return "Desculpe, não encontrei uma resposta adequada.";
+        }
     }
 
     // Dynamically update the index with new terms
@@ -120,6 +113,7 @@ public class ResponseIndexer {
         }
     }
 
+    // Read the content of a document
     public static String readDocument(String docName) {
         StringBuilder content = new StringBuilder();
         File file = new File("src/files/documents/" + docName);

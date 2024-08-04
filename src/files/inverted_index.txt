@@ -1,3 +1,3 @@
-rock:doc4.txt,doc5.txt,doc11.txt
-guitarra:doc4.txt,doc13.txt,doc11.txt
+violino:doc12.txt,doc7.txt,doc15.txt
+piano:doc12.txt,doc3.txt,doc1.txt,doc16.txt,doc20.txt
 violão:doc18.txt,doc15.txt,doc16.txt,doc2.txt,doc20.txt
