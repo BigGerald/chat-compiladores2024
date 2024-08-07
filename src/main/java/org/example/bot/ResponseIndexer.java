@@ -7,11 +7,13 @@ import java.util.*;
 
 public class ResponseIndexer {
 
-    private Map<String, Set<String>> invertedIndex = new HashMap<>();
+    private Map<String, Map<String, Integer>> invertedIndex = new HashMap<>();
     private final String indexFilePath;
+    private TfIdfCalculator tfIdfCalculator;
 
     public ResponseIndexer(String indexFilePath) {
         this.indexFilePath = indexFilePath;
+        this.tfIdfCalculator = new TfIdfCalculator();
     }
 
     // Load the index from the file
@@ -22,7 +24,14 @@ public class ResponseIndexer {
                 String[] parts = line.split(":", 2);
                 if (parts.length == 2) {
                     String term = parts[0];
-                    Set<String> docs = new HashSet<>(Arrays.asList(parts[1].split(",")));
+                    String[] docCounts = parts[1].split(",");
+                    Map<String, Integer> docs = new HashMap<>();
+                    for (String docCount : docCounts) {
+                        String[] docAndCount = docCount.split("-");
+                        if (docAndCount.length == 2) {
+                            docs.put(docAndCount[0], Integer.parseInt(docAndCount[1]));
+                        }
+                    }
                     invertedIndex.put(term, docs);
                 }
             }
@@ -32,8 +41,15 @@ public class ResponseIndexer {
     // Save the index to the file
     public void saveIndex() throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(indexFilePath))) {
-            for (Map.Entry<String, Set<String>> entry : invertedIndex.entrySet()) {
-                writer.write(entry.getKey() + ":" + String.join(",", entry.getValue()));
+            for (Map.Entry<String, Map<String, Integer>> entry : invertedIndex.entrySet()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(entry.getKey()).append(":");
+                for (Map.Entry<String, Integer> docEntry : entry.getValue().entrySet()) {
+                    sb.append(docEntry.getKey()).append("-").append(docEntry.getValue()).append(",");
+                }
+                // Remove the trailing comma
+                sb.setLength(sb.length() - 1);
+                writer.write(sb.toString());
                 writer.newLine();
             }
         }
@@ -48,7 +64,8 @@ public class ResponseIndexer {
                     String content = reader.lines().reduce("", (acc, line) -> acc + " " + line).toLowerCase();
                     Set<String> terms = extractTerms(content);
                     for (String term : terms) {
-                        invertedIndex.computeIfAbsent(term, k -> new HashSet<>()).add(file.getName());
+                        int count = countOccurrences(term, content);
+                        invertedIndex.computeIfAbsent(term, k -> new HashMap<>()).put(file.getName(), count);
                     }
                 }
             }
@@ -59,7 +76,6 @@ public class ResponseIndexer {
     // Extract terms from content
     private Set<String> extractTerms(String content) {
         Set<String> terms = new HashSet<>();
-        // Divida o conteúdo em palavras, mantendo a acentuação
         String[] words = content.toLowerCase().split("\\P{L}+"); // Utiliza \P{L} para separar por caracteres não-letra
         for (String word : words) {
             if (!word.isEmpty() && !StopWordsUtils.isStopWord(word)) {
@@ -69,17 +85,31 @@ public class ResponseIndexer {
         return terms;
     }
 
-    // Get the best response based on the query
+    // Count occurrences of a term in the content
+    private int countOccurrences(String term, String content) {
+        int count = 0;
+        int index = 0;
+        while ((index = content.indexOf(term, index)) != -1) {
+            count++;
+            index += term.length();
+        }
+        return count;
+    }
+
+    // Get the best response based on the query using TF-IDF
     public String getBestResponse(String query) throws IOException {
-        String[] words = query.toLowerCase().split("\\P{L}+"); // Utiliza \P{L} para separar por caracteres não-letra
-        Map<String, Integer> docScores = new HashMap<>();
+        String[] words = query.toLowerCase().split("\\P{L}+");
+        Map<String, Double> docScores = new HashMap<>();
+
         for (String word : words) {
             if (invertedIndex.containsKey(word)) {
-                for (String doc : invertedIndex.get(word)) {
-                    docScores.put(doc, docScores.getOrDefault(doc, 0) + 1);
+                Map<String, Double> tfIdfScores = tfIdfCalculator.calculateTfIdfForDocuments(word, invertedIndex.get(word), invertedIndex);
+                for (Map.Entry<String, Double> entry : tfIdfScores.entrySet()) {
+                    docScores.put(entry.getKey(), docScores.getOrDefault(entry.getKey(), 0.0) + entry.getValue());
                 }
             }
         }
+
         String bestDoc = docScores.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
@@ -93,8 +123,8 @@ public class ResponseIndexer {
     }
 
     // Dynamically update the index with new terms
-    public void updateIndex(String term, String documentName) throws IOException {
-        invertedIndex.computeIfAbsent(term, k -> new HashSet<>()).add(documentName);
+    public void updateIndex(String term, String documentName, int count) throws IOException {
+        invertedIndex.computeIfAbsent(term, k -> new HashMap<>()).put(documentName, count);
         saveIndex();
     }
 
@@ -106,7 +136,8 @@ public class ResponseIndexer {
                 try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                     String content = reader.lines().reduce("", (acc, line) -> acc + " " + line).toLowerCase();
                     if (content.contains(term.toLowerCase())) {
-                        updateIndex(term.toLowerCase(), file.getName());
+                        int count = countOccurrences(term, content);
+                        updateIndex(term.toLowerCase(), file.getName(), count);
                     }
                 }
             }

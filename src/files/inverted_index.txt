@@ -1,3 +1,2 @@
-violino:doc12.txt,doc7.txt,doc15.txt
-piano:doc12.txt,doc3.txt,doc1.txt,doc16.txt,doc20.txt
-violão:doc18.txt,doc15.txt,doc16.txt,doc2.txt,doc20.txt
+piano:doc12.txt-2,doc42.txt-2,doc22.txt-2,doc2.txt-3,doc32.txt-2
+violão:doc11.txt-2,doc1.txt-3,doc21.txt-2,doc41.txt-4,doc31.txt-2
