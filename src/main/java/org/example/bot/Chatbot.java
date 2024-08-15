@@ -231,7 +231,7 @@ public class Chatbot {
         } else if (!context.containsKey("método")) {
             return "<método>";
         }
-        return "<instrumento>"; // Valor padrão, ajuste conforme necessário
+        return "<instrumento>";
     }
 
     private static String extractTerm(String input, Set<String> terms) {
@@ -261,18 +261,6 @@ public class Chatbot {
         symbolTable.addAll(updatedSymbolTable.stream()
                 .filter(word -> !symbolTable.contains(word))
                 .collect(Collectors.toList()));
-    }
-
-    private static void updateContext() {
-        for (String word : symbolTable) {
-            if (word.endsWith("<instrumento>")) {
-                context.put("instrumento", word.replace("<instrumento>", ""));
-            } else if (word.endsWith("<gênero>")) {
-                context.put("gênero", word.replace("<gênero>", ""));
-            } else if (word.endsWith("<método>")) {
-                context.put("método", word.replace("<método>", ""));
-            }
-        }
     }
 
     private static boolean checkMissingElements(String input, String type) {
@@ -337,19 +325,6 @@ public class Chatbot {
             return "método";
         }
         return "";
-    }
-
-    private static String replacePlaceholders(String content) {
-        if (context.containsKey("instrumento")) {
-            content = content.replace("<instrumento>", context.get("instrumento"));
-        }
-        if (context.containsKey("gênero")) {
-            content = content.replace("<gênero>", context.get("gênero"));
-        }
-        if (context.containsKey("método")) {
-            content = content.replace("<método>", context.get("método"));
-        }
-        return content;
     }
 
 }

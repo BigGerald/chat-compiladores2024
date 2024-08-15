@@ -1,2 +1,6 @@
+rock:doc24.txt-1,doc4.txt-1,doc51.txt-2,doc91.txt-2,doc14.txt-1,doc34.txt-1,doc44.txt-1,doc71.txt-2
+bateria:doc35.txt-2,doc5.txt-2,doc25.txt-2,doc15.txt-2,doc45.txt-3
+violino:doc17.txt-2,doc37.txt-2,doc7.txt-2,doc27.txt-2,doc47.txt-2
 piano:doc12.txt-2,doc42.txt-2,doc22.txt-2,doc2.txt-3,doc32.txt-2
+guitarra:doc24.txt-2,doc4.txt-3,doc14.txt-1,doc34.txt-2,doc44.txt-5
 violão:doc11.txt-2,doc1.txt-3,doc21.txt-2,doc41.txt-4,doc31.txt-2
