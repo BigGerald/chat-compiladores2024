@@ -41,7 +41,6 @@ public class Chatbot {
     private static String previousInput = "";
     private static boolean isPreviousAssignmentComplete = true;
     private static boolean waitingForConfirmation = false;
-    private static String previousQuestion = ""; // To store the previous question
 
     private static ResponseIndexer responseIndexer;
 

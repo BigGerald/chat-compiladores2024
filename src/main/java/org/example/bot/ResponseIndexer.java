@@ -5,6 +5,8 @@ import org.example.utils.StopWordsUtils;
 import java.io.*;
 import java.util.*;
 
+import static org.example.utils.StopWordsUtils.getStopWordsList;
+
 public class ResponseIndexer {
 
     private Map<String, Map<String, Integer>> invertedIndex = new HashMap<>();
@@ -64,8 +66,10 @@ public class ResponseIndexer {
                     String content = reader.lines().reduce("", (acc, line) -> acc + " " + line).toLowerCase();
                     Set<String> terms = extractTerms(content);
                     for (String term : terms) {
-                        int count = countOccurrences(term, content);
-                        invertedIndex.computeIfAbsent(term, k -> new HashMap<>()).put(file.getName(), count);
+                        if (!getStopWordsList().contains(term)) { // Verifica se o termo não está na lista de stopwords
+                            int count = countOccurrences(term, content);
+                            invertedIndex.computeIfAbsent(term, k -> new HashMap<>()).put(file.getName(), count);
+                        }
                     }
                 }
             }
