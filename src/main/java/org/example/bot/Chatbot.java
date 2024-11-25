@@ -89,10 +89,10 @@ public class Chatbot {
                 }
             }
 
-            return; // Após tratar a entrada do termo faltante e buscar a resposta, retorna
+            return;
         }
 
-        // Processa a entrada se a atribuição anterior estiver completa
+
         ArrayList<String> wordsList = new ArrayList<>(Set.of(input.split(" ")));
         ArrayList<String> wordsListWithoutStopWords = removeStopWords(wordsList);
         ArrayList<String> uniqueWords = checkSimilarity(wordsListWithoutStopWords);
@@ -136,7 +136,7 @@ public class Chatbot {
                 System.out.println("Opa, entendi sua requisição sobre " + termToUse);
                 System.out.println("Tabela de símbolos: " + symbolTable);
 
-                // Atualiza o índice com o novo termo de atribuição
+
                 try {
                     responseIndexer.updateIndexFromAssignment(termToUse);
                     String bestResponse = responseIndexer.getBestResponse(previousInput + " " + termToUse);
@@ -161,15 +161,14 @@ public class Chatbot {
                     System.out.println("Não entendi.");
                 } else {
                     if (!isPreviousAssignmentComplete) {
-                        // Processa a entrada do termo isolado
                         String termType = identifyMissingTermType();
                         if (termType.equals(currentType)) {
                             context.put(currentType, input);
-                            addToSymbolTable(input, "<" + currentType + ">"); // Adiciona o termo reconhecido à tabela de símbolos
+                            addToSymbolTable(input, "<" + currentType + ">");
                             System.out.println("Opa, entendi sua requisição sobre " + input);
                             System.out.println("Tabela de símbolos: " + symbolTable);
 
-                            // Atualiza o índice com o novo termo de atribuição
+
                             try {
                                 responseIndexer.updateIndexFromAssignment(input);
                                 String bestResponse = responseIndexer.getBestResponse(previousInput + " " + input);
@@ -197,17 +196,17 @@ public class Chatbot {
     private static void handleSingleWordInput(String input) {
         if (instrumentos.contains(input)) {
             context.put("instrumento", input);
-            addToSymbolTable(input, "<instrumento>"); // Adiciona o termo reconhecido à tabela de símbolos
+            addToSymbolTable(input, "<instrumento>");
             System.out.println("Opa, entendi sua requisição sobre " + input);
             System.out.println("Tabela de símbolos: " + symbolTable);
         } else if (generos.contains(input)) {
             context.put("gênero", input);
-            addToSymbolTable(input, "<gênero>"); // Adiciona o termo reconhecido à tabela de símbolos
+            addToSymbolTable(input, "<gênero>");
             System.out.println("Opa, entendi sua requisição sobre " + input);
             System.out.println("Tabela de símbolos: " + symbolTable);
         } else if (metodos.contains(input)) {
             context.put("método", input);
-            addToSymbolTable(input, "<método>"); // Adiciona o termo reconhecido à tabela de símbolos
+            addToSymbolTable(input, "<método>");
             System.out.println("Opa, entendi sua requisição sobre " + input);
             System.out.println("Tabela de símbolos: " + symbolTable);
         } else {

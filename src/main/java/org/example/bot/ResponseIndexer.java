@@ -18,7 +18,7 @@ public class ResponseIndexer {
         this.tfIdfCalculator = new TfIdfCalculator();
     }
 
-    // Load the index from the file
+
     public void loadIndex() throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(indexFilePath))) {
             String line;
@@ -40,7 +40,6 @@ public class ResponseIndexer {
         }
     }
 
-    // Save the index to the file
     public void saveIndex() throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(indexFilePath))) {
             for (Map.Entry<String, Map<String, Integer>> entry : invertedIndex.entrySet()) {
@@ -49,7 +48,7 @@ public class ResponseIndexer {
                 for (Map.Entry<String, Integer> docEntry : entry.getValue().entrySet()) {
                     sb.append(docEntry.getKey()).append("-").append(docEntry.getValue()).append(",");
                 }
-                // Remove the trailing comma
+
                 sb.setLength(sb.length() - 1);
                 writer.write(sb.toString());
                 writer.newLine();
@@ -57,7 +56,7 @@ public class ResponseIndexer {
         }
     }
 
-    // Create index from documents
+
     public void createIndexFromDocuments() throws IOException {
         File folder = new File("src/files/documents");
         for (File file : folder.listFiles()) {
@@ -77,7 +76,7 @@ public class ResponseIndexer {
         saveIndex();
     }
 
-    // Extract terms from content
+
     private Set<String> extractTerms(String content) {
         Set<String> terms = new HashSet<>();
         String[] words = content.toLowerCase().split("\\P{L}+"); // Utiliza \P{L} para separar por caracteres não-letra
@@ -89,7 +88,7 @@ public class ResponseIndexer {
         return terms;
     }
 
-    // Count occurrences of a term in the content
+
     private int countOccurrences(String term, String content) {
         int count = 0;
         int index = 0;
@@ -100,7 +99,7 @@ public class ResponseIndexer {
         return count;
     }
 
-    // Get the best response based on the query using TF-IDF
+
     public String getBestResponse(String query) throws IOException {
         String[] words = query.toLowerCase().split("\\P{L}+");
         Map<String, Double> docScores = new HashMap<>();
@@ -126,13 +125,13 @@ public class ResponseIndexer {
         }
     }
 
-    // Dynamically update the index with new terms
+
     public void updateIndex(String term, String documentName, int count) throws IOException {
         invertedIndex.computeIfAbsent(term, k -> new HashMap<>()).put(documentName, count);
         saveIndex();
     }
 
-    // Dynamically update the index from new assignments
+
     public void updateIndexFromAssignment(String term) throws IOException {
         File folder = new File("src/files/documents");
         for (File file : folder.listFiles()) {
